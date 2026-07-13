@@ -1,26 +1,84 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #F8FAFC;
+  --foreground: #0F172A;
+  
+  --primary: #2563EB;
+  --primary-foreground: #FFFFFF;
+  
+  --secondary: #1E293B;
+  --secondary-foreground: #FFFFFF;
+  
+  --success: #22C55E;
+  --success-foreground: #FFFFFF;
+  
+  --warning: #F59E0B;
+  --warning-foreground: #FFFFFF;
+  
+  --danger: #EF4444;
+  --danger-foreground: #FFFFFF;
+  
+  --info: #06B6D4;
+  --info-foreground: #FFFFFF;
+
+  --surface: #FFFFFF;
+  --surface-foreground: #0F172A;
+  
+  --border: #E2E8F0;
+  
+  --muted: #F1F5F9;
+  --muted-foreground: #94A3B8;
+  
+  --secondary-text: #64748B;
+  
+  --radius: 0.5rem;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-surface: var(--surface);
+  --color-surface-foreground: var(--surface-foreground);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  
+  --font-sans: var(--font-inter), var(--font-geist-sans), sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
+  
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0f172a;
+    --foreground: #f8fafc;
+    --surface: #1e293b;
+    --surface-foreground: #f8fafc;
+    --border: #334155;
+    --muted: #334155;
+    --muted-foreground: #94a3b8;
+    --secondary-text: #cbd5e1;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
 }
