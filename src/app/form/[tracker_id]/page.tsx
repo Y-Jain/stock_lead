@@ -7,6 +7,7 @@ import {
   AlertCircle, Briefcase, HelpCircle, FileText, TrendingUp, 
   CheckCircle2, Mail, IndianRupee 
 } from "lucide-react";
+import logoImg from "../../../../public/bullmart.png";
 
 export default function PublicFormPage() {
   const { tracker_id } = useParams();
@@ -128,7 +129,7 @@ export default function PublicFormPage() {
         
         <div className="text-center mb-14">
           <div className="mx-auto mb-8 flex justify-center">
-            <img src="/bullmart.png" alt="Bull Mart Securities" className="h-40 w-auto object-contain drop-shadow-sm scale-[1.1]" />
+            <img src={logoImg.src} alt="Bull Mart Securities" className="h-40 w-auto object-contain drop-shadow-sm scale-[1.1]" />
           </div>
           <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight mb-4">{formData.title}</h1>
           {formData.description && (
