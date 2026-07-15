@@ -5,16 +5,6 @@ import { Users, Database, FileText, TrendingUp, Activity, ArrowUpRight, ArrowDow
 import { motion } from "framer-motion";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
 
-// Mock trend data for visual appeal (since no historical API exists)
-const trendData = [
-  { name: 'Mon', leads: 40, conversion: 24 },
-  { name: 'Tue', leads: 30, conversion: 13 },
-  { name: 'Wed', leads: 45, conversion: 38 },
-  { name: 'Thu', leads: 50, conversion: 43 },
-  { name: 'Fri', leads: 65, conversion: 55 },
-  { name: 'Sat', leads: 40, conversion: 48 },
-  { name: 'Sun', leads: 70, conversion: 65 },
-];
 
 const COLORS = ['#2563EB', '#06B6D4', '#22C55E', '#F59E0B', '#EF4444', '#8B5CF6'];
 
@@ -52,7 +42,7 @@ export default function AdminDashboardPage() {
     );
   }
 
-  const { kpis, statusBreakdown } = data;
+  const { kpis, statusBreakdown, trendData } = data;
 
   const statCards = [
     { title: "Total Leads", value: kpis.totalLeads, icon: Database, color: "text-primary", bg: "bg-primary/10", trend: "+12.5%" },

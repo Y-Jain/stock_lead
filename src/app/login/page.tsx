@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth";
 import { Lock } from "lucide-react";
+import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -82,7 +83,14 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Password</label>
+              <div className="flex items-center justify-between">
+                <label className="block text-sm font-medium text-gray-700">Password</label>
+                <div className="text-sm">
+                  <Link href="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500 transition-colors">
+                    Forgot your password?
+                  </Link>
+                </div>
+              </div>
               <div className="mt-1">
                 <input
                   name="password"

@@ -3,14 +3,31 @@ import db from "@/db";
 import * as argon2 from "argon2";
 import { signJwtToken } from "@/lib/auth";
 import { cookies } from "next/headers";
+import { loginLimiter } from "@/lib/rate-limit";
+import { z } from "zod";
+
+const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1, "Password is required"),
+});
 
 export async function POST(request: Request) {
   try {
-    const { email, password } = await request.json();
-
-    if (!email || !password) {
-      return NextResponse.json({ error: "Email and password are required" }, { status: 400 });
+    const ip_address = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "Unknown";
+    
+    // Rate Limiting
+    if (!loginLimiter.check(ip_address)) {
+      return NextResponse.json({ error: "Too many login attempts" }, { status: 429 });
     }
+
+    const rawData = await request.json();
+    const parsedData = loginSchema.safeParse(rawData);
+    
+    if (!parsedData.success) {
+      return NextResponse.json({ error: "Invalid email or password format" }, { status: 400 });
+    }
+
+    const { email, password } = parsedData.data;
 
     // Lookup user and join with roles
     const user = await db("users")

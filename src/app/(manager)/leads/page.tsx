@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Search, ArrowRight, Filter, ChevronDown, Download, Database } from "lucide-react";
+import { Search, ArrowRight, Filter, ChevronDown, Download, Database, Calendar } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function LeadsLedgerPage() {
@@ -13,6 +13,8 @@ export default function LeadsLedgerPage() {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterPriority, setFilterPriority] = useState("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
   const fetchLeads = () => {
     setLoading(true);
@@ -49,7 +51,24 @@ export default function LeadsLedgerPage() {
     const matchesStatus = filterStatus === "all" || lead.status?.toLowerCase() === filterStatus.toLowerCase();
     const matchesPriority = filterPriority === "all" || lead.priority?.toLowerCase() === filterPriority.toLowerCase();
 
-    return matchesSearch && matchesStatus && matchesPriority;
+    let matchesDate = true;
+    if (dateFrom || dateTo) {
+      const leadDate = new Date(lead.created_at);
+      leadDate.setHours(0, 0, 0, 0);
+      
+      if (dateFrom) {
+        const fromDate = new Date(dateFrom);
+        fromDate.setHours(0, 0, 0, 0);
+        if (leadDate < fromDate) matchesDate = false;
+      }
+      if (dateTo) {
+        const toDate = new Date(dateTo);
+        toDate.setHours(0, 0, 0, 0);
+        if (leadDate > toDate) matchesDate = false;
+      }
+    }
+
+    return matchesSearch && matchesStatus && matchesPriority && matchesDate;
   });
 
   return (
@@ -69,8 +88,9 @@ export default function LeadsLedgerPage() {
         animate={{ opacity: 1, y: 0 }}
         className="bg-surface rounded-2xl border border-border shadow-sm overflow-hidden flex flex-col"
       >
-        <div className="p-4 sm:p-5 border-b border-border bg-muted/20 flex flex-col lg:flex-row gap-4 items-center justify-between">
-          <div className="relative w-full lg:max-w-md">
+        <div className="p-4 sm:p-5 border-b border-border bg-muted/20 flex flex-col gap-4">
+          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+            <div className="relative w-full lg:max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
               type="text"
@@ -118,8 +138,40 @@ export default function LeadsLedgerPage() {
                 <ChevronDown className="w-4 h-4 text-muted-foreground" />
               </div>
             </div>
+
+          </div>
+          
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm font-medium text-foreground">Date Range:</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <input 
+                type="date" 
+                value={dateFrom}
+                onChange={e => setDateFrom(e.target.value)}
+                className="appearance-none px-3 py-1.5 bg-surface border border-border rounded-lg text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary shadow-sm"
+              />
+              <span className="text-muted-foreground text-sm">to</span>
+              <input 
+                type="date" 
+                value={dateTo}
+                onChange={e => setDateTo(e.target.value)}
+                className="appearance-none px-3 py-1.5 bg-surface border border-border rounded-lg text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary shadow-sm"
+              />
+              {(dateFrom || dateTo) && (
+                <button 
+                  onClick={() => { setDateFrom(""); setDateTo(""); }}
+                  className="text-xs text-primary hover:underline ml-2 font-medium"
+                >
+                  Clear Dates
+                </button>
+              )}
+            </div>
           </div>
         </div>
+      </div>
 
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-border">
@@ -149,7 +201,7 @@ export default function LeadsLedgerPage() {
                       <Database className="w-12 h-12 mb-4 opacity-20" />
                       <p className="text-sm font-medium">No leads found matching current filters.</p>
                       <button 
-                        onClick={() => { setSearch(""); setFilterStatus("all"); setFilterPriority("all"); }}
+                        onClick={() => { setSearch(""); setFilterStatus("all"); setFilterPriority("all"); setDateFrom(""); setDateTo(""); }}
                         className="mt-3 text-primary text-sm hover:underline"
                       >
                         Clear filters

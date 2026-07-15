@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Search, Edit, Trash2, Filter, ChevronDown, Download, Database, Calendar } from "lucide-react";
+import { Search, Edit, Trash2, Filter, ChevronDown, Download, Database, Calendar, Phone } from "lucide-react";
 import { motion } from "framer-motion";
 import * as XLSX from "xlsx";
 
@@ -17,6 +17,14 @@ export default function LeadsLedgerPage() {
   const [filterManager, setFilterManager] = useState("all");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 15;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, filterStatus, filterPriority, filterManager, dateFrom, dateTo]);
 
   const fetchLeads = () => {
     setLoading(true);
@@ -87,6 +95,9 @@ export default function LeadsLedgerPage() {
 
     return matchesSearch && matchesStatus && matchesPriority && matchesManager && matchesDate;
   });
+
+  const totalPages = Math.ceil(filteredLeads.length / itemsPerPage);
+  const paginatedLeads = filteredLeads.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const exportToExcel = () => {
     if (filteredLeads.length === 0) return;
@@ -311,7 +322,7 @@ export default function LeadsLedgerPage() {
                   </td>
                 </tr>
               ) : (
-                filteredLeads.map((lead: any) => {
+                paginatedLeads.map((lead: any) => {
                   const name = lead.custom_data?.name || lead.custom_data?.full_name || lead.custom_data?.first_name || "Unknown Lead";
                   
                   // Extract email smartly
@@ -329,11 +340,36 @@ export default function LeadsLedgerPage() {
                   }
                   email = email || "No email provided";
                   
+                  // Extract phone smartly
+                  let phone = lead.custom_data?.phone || lead.custom_data?.phone_number || lead.custom_data?.mobile || lead.custom_data?.['phone number'] || "";
+                  if (!phone && lead.custom_data) {
+                    const phoneKey = Object.keys(lead.custom_data).find(k => k.toLowerCase().includes('phone') || k.toLowerCase().includes('mobile') || k.toLowerCase().includes('whatsapp'));
+                    if (phoneKey) {
+                      phone = lead.custom_data[phoneKey];
+                    } else {
+                      const phoneValue = Object.values(lead.custom_data).find(v => typeof v === 'string' && /^[\d\s\-\+\(\)]{7,20}$/.test(v));
+                      if (phoneValue) phone = phoneValue as string;
+                    }
+                  }
+
                   return (
                     <tr key={lead.id} className="hover:bg-muted/50 transition-colors group">
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-semibold text-foreground capitalize">{name}</div>
-                        <div className="text-xs text-muted-foreground mt-0.5">{email}</div>
+                        <div className="flex items-center gap-3">
+                          <div>
+                            <div className="text-sm font-semibold text-foreground capitalize">{name}</div>
+                            <div className="text-xs text-muted-foreground mt-0.5">{email}</div>
+                          </div>
+                          {phone && (
+                            <a 
+                              href={`tel:${phone}`}
+                              title={`Call ${phone}`}
+                              className="p-1.5 bg-green-600 text-white hover:bg-green-700 rounded-full transition-colors shrink-0 shadow-sm"
+                            >
+                              <Phone className="w-4 h-4" />
+                            </a>
+                          )}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-foreground">{lead.form_title}</div>
@@ -388,15 +424,30 @@ export default function LeadsLedgerPage() {
           </table>
         </div>
         
-        {/* Pagination placeholder (since no real pagination exists) */}
+        {/* Pagination UI */}
         {!loading && filteredLeads.length > 0 && (
-          <div className="px-6 py-4 border-t border-border bg-muted/20 flex items-center justify-between">
+          <div className="px-6 py-4 border-t border-border bg-muted/20 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-sm text-muted-foreground">
-              Showing <span className="font-medium text-foreground">{filteredLeads.length}</span> records
+              Showing <span className="font-medium text-foreground">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="font-medium text-foreground">{Math.min(currentPage * itemsPerPage, filteredLeads.length)}</span> of <span className="font-medium text-foreground">{filteredLeads.length}</span> records
             </p>
-            <div className="flex gap-2">
-              <button disabled className="px-3 py-1.5 text-sm font-medium text-muted-foreground bg-surface border border-border rounded-lg opacity-50 cursor-not-allowed">Previous</button>
-              <button disabled className="px-3 py-1.5 text-sm font-medium text-muted-foreground bg-surface border border-border rounded-lg opacity-50 cursor-not-allowed">Next</button>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-1.5 text-sm font-medium text-foreground bg-surface border border-border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted transition-colors"
+              >
+                Previous
+              </button>
+              <span className="text-sm text-muted-foreground mx-2">
+                Page {currentPage} of {totalPages}
+              </span>
+              <button 
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1.5 text-sm font-medium text-foreground bg-surface border border-border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted transition-colors"
+              >
+                Next
+              </button>
             </div>
           </div>
         )}

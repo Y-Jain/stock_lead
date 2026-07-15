@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 import { verifyJwtToken } from './lib/auth';
 
 // Add paths that don't require authentication
-const publicPaths = ['/login', '/api/auth/login', '/api/public'];
+const publicPaths = ['/login', '/forgot-password', '/api/auth/login', '/api/auth/forgot-password', '/api/auth/reset-password', '/api/public'];
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;

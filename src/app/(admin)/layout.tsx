@@ -59,14 +59,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <motion.aside
         className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-surface border-r border-border flex flex-col transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
       >
-        <div className="h-16 flex items-center justify-between px-6 border-b border-border">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <div className="w-3 h-3 bg-white rounded-full" />
-            </div>
-            <span className="text-xl font-bold text-foreground tracking-tight">Lead CRM</span>
+        <div className="h-24 flex items-center justify-center px-6 border-b border-border relative">
+          <div className="flex items-center justify-center w-full mt-2">
+            <img src="/logo.png" alt="Bull Mart Securities" className="h-20 w-auto object-contain scale-[1.3]" />
           </div>
-          <button className="lg:hidden text-secondary-text hover:text-foreground" onClick={() => setIsSidebarOpen(false)}>
+          <button className="lg:hidden absolute right-6 text-secondary-text hover:text-foreground" onClick={() => setIsSidebarOpen(false)}>
             <X className="w-5 h-5" />
           </button>
         </div>

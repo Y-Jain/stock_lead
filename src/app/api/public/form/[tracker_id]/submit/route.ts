@@ -1,10 +1,31 @@
 import { NextResponse } from "next/server";
 import db from "@/db";
+import { formSubmitLimiter } from "@/lib/rate-limit";
+import { z } from "zod";
+
+const customDataSchema = z.record(z.string(), z.any()).refine(
+  (data) => JSON.stringify(data).length < 5000, 
+  { message: "Payload too large" }
+);
 
 export async function POST(request: Request, { params }: { params: Promise<{ tracker_id: string }> }) {
   try {
+    const ip_address = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "Unknown";
+    
+    // Rate Limiting
+    if (!formSubmitLimiter.check(ip_address)) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+
     const { tracker_id } = await params;
-    const customData = await request.json();
+    const rawData = await request.json();
+    
+    // Input Validation
+    const parsedData = customDataSchema.safeParse(rawData);
+    if (!parsedData.success) {
+      return NextResponse.json({ error: "Invalid payload format" }, { status: 400 });
+    }
+    const customData = parsedData.data;
 
     // Find the manager
     const manager = await db("managers").where("tracker_id", tracker_id).first();
@@ -18,8 +39,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ tra
       return NextResponse.json({ error: "No form assigned" }, { status: 404 });
     }
 
-    // Get IP and User-Agent from headers
-    const ip_address = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "Unknown";
     const user_agent = request.headers.get("user-agent") || "Unknown";
 
     // Insert Lead

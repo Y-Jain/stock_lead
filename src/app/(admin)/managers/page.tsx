@@ -142,7 +142,7 @@ export default function ManagersPage() {
                       {manager.form_title ? (
                         <div className="flex flex-col items-start">
                           <span className="text-sm font-medium text-foreground">{manager.form_title}</span>
-                          <a href={manager.form_url} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline mt-0.5 inline-flex items-center gap-1">
+                          <a href={`/form/${manager.tracker_id}`} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline mt-0.5 inline-flex items-center gap-1">
                             Open Form Link
                           </a>
                         </div>
