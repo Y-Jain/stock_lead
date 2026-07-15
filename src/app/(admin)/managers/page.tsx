@@ -142,6 +142,15 @@ export default function ManagersPage() {
                               Admin: {manager.admin_email}
                             </div>
                           )}
+                          <div className="md:hidden mt-2">
+                            {manager.form_title ? (
+                              <a href={`/form/${manager.tracker_id}`} target="_blank" rel="noreferrer" className="text-[11px] font-medium text-primary hover:underline inline-flex items-center bg-primary/5 px-2 py-1 rounded-md">
+                                Open Form Link
+                              </a>
+                            ) : (
+                              <span className="text-[11px] text-muted-foreground italic bg-muted px-2 py-1 rounded-md">No form assigned</span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </td>

@@ -26,7 +26,13 @@ export default function PublicFormPage() {
         if (data.error) throw new Error(data.error);
         setFormData(data.data.form);
         setFields(data.data.fields);
-        if (data.data.logo_url) setLogoUrl(data.data.logo_url);
+        if (data.data.logo_url) {
+          let url = data.data.logo_url;
+          if (!url.startsWith('http') && !url.startsWith('/') && !url.startsWith('data:')) {
+            url = '/' + url;
+          }
+          setLogoUrl(url);
+        }
         setLoading(false);
       })
       .catch((err) => {

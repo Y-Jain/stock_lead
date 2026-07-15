@@ -20,7 +20,13 @@ export default function ManagerLayout({ children }: { children: React.ReactNode 
     fetch("/api/settings")
       .then(res => res.json())
       .then(data => {
-        if (data?.data?.logo_url) setLogoUrl(data.data.logo_url);
+        if (data?.data?.logo_url) {
+          let url = data.data.logo_url;
+          if (!url.startsWith('http') && !url.startsWith('/') && !url.startsWith('data:')) {
+            url = '/' + url;
+          }
+          setLogoUrl(url);
+        }
       })
       .catch(console.error);
 
