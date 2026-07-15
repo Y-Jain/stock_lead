@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     const parsedData = resetSchema.safeParse(body);
     
     if (!parsedData.success) {
-      return NextResponse.json({ error: parsedData.error.errors[0].message }, { status: 400 });
+      return NextResponse.json({ error: parsedData.error.issues[0].message }, { status: 400 });
     }
 
     const { email, otp, newPassword } = parsedData.data;
