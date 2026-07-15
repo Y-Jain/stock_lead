@@ -74,7 +74,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       >
         <div className="h-24 flex items-center justify-center px-6 border-b border-border relative">
           <div className="flex items-center justify-center w-full mt-2">
-            <img src={logoUrl} alt="Bull Mart Securities" className="h-20 w-auto object-contain scale-[1.3]" />
+            <img src="/bullmart.png" alt="Bull Mart Securities" className="h-20 w-auto object-contain scale-[1.3]" />
           </div>
           <button className="lg:hidden absolute right-6 text-secondary-text hover:text-foreground" onClick={() => setIsSidebarOpen(false)}>
             <X className="w-5 h-5" />
