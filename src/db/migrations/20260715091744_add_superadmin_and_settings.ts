@@ -13,7 +13,7 @@ export async function up(knex: Knex): Promise<void> {
   // 2. Insert default settings
   await knex("settings").insert({
     key: "logo_url",
-    value: "/logo.png"
+    value: "/bullmart.png"
   });
 
   // 3. Create superadmin role

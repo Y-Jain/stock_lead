@@ -27,7 +27,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ trac
 
     // Fetch the logo_url
     const logoSetting = await db("settings").where("key", "logo_url").first();
-    const logo_url = logoSetting ? logoSetting.value : "/logo.png";
+    const logo_url = logoSetting ? logoSetting.value : "/bullmart.png";
 
     return NextResponse.json({ data: { form, fields, manager_id: manager.id, logo_url } });
   } catch (error) {

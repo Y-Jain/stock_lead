@@ -125,15 +125,6 @@ export default function FormsListPage() {
                         <div>
                           <div className="text-sm font-semibold text-foreground flex items-center gap-2">
                             {form.title}
-                            <a 
-                              href={`/form/${form.tracker_id}`} 
-                              target="_blank" 
-                              rel="noreferrer" 
-                              className="text-muted-foreground hover:text-primary transition-colors opacity-0 group-hover:opacity-100"
-                              title="View Live Form"
-                            >
-                              <ExternalLink className="w-3.5 h-3.5" />
-                            </a>
                           </div>
                           <div className="text-xs text-muted-foreground mt-0.5 truncate max-w-xs">{form.description || "No description provided"}</div>
                         </div>

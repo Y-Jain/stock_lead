@@ -73,14 +73,14 @@ export default function SettingsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-12 gap-6">
                 <div className="sm:col-span-8">
                   <label className="block text-sm font-medium text-foreground mb-1">Logo URL</label>
-                  <p className="text-xs text-muted-foreground mb-3">Provide a public URL to an image file (PNG, JPG, SVG) or use the default `/logo.png`.</p>
+                  <p className="text-xs text-muted-foreground mb-3">Provide a public URL to an image file (PNG, JPG, SVG) or use the default `/bullmart.png`.</p>
                   <input 
                     type="text" 
                     required 
                     value={logoUrl}
                     onChange={e => setLogoUrl(e.target.value)}
                     className="w-full px-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="https://example.com/logo.png"
+                    placeholder="https://example.com/bullmart.png"
                   />
                 </div>
                 <div className="sm:col-span-4 flex flex-col items-center justify-center p-4 border border-dashed border-border rounded-xl bg-background mt-6 sm:mt-0">

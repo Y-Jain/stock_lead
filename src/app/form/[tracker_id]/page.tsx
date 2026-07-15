@@ -11,7 +11,7 @@ import {
 export default function PublicFormPage() {
   const { tracker_id } = useParams();
   const [formData, setFormData] = useState<any>(null);
-  const [logoUrl, setLogoUrl] = useState("/logo.png");
+  const [logoUrl, setLogoUrl] = useState("/bullmart.png");
   const [fields, setFields] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");

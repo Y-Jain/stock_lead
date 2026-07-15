@@ -94,7 +94,7 @@ export default function ManagersPage() {
               <tr>
                 <th className="px-6 py-3.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Manager Info</th>
                 <th className="px-6 py-3.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider hidden sm:table-cell">Department / Phone</th>
-                <th className="px-6 py-3.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider hidden md:table-cell">Assigned Form</th>
+                <th className="px-6 py-3.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Assigned Form</th>
                 <th className="px-6 py-3.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Status</th>
                 <th className="px-6 py-3.5 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">Actions</th>
               </tr>
@@ -142,15 +142,6 @@ export default function ManagersPage() {
                               Admin: {manager.admin_email}
                             </div>
                           )}
-                          <div className="md:hidden mt-2">
-                            {manager.form_title ? (
-                              <a href={`/form/${manager.tracker_id}`} target="_blank" rel="noreferrer" className="text-[11px] font-medium text-primary hover:underline inline-flex items-center bg-primary/5 px-2 py-1 rounded-md">
-                                Open Form Link
-                              </a>
-                            ) : (
-                              <span className="text-[11px] text-muted-foreground italic bg-muted px-2 py-1 rounded-md">No form assigned</span>
-                            )}
-                          </div>
                         </div>
                       </div>
                     </td>
@@ -158,7 +149,7 @@ export default function ManagersPage() {
                       <div className="text-sm font-medium text-foreground">{manager.department || "No Dept"}</div>
                       <div className="text-xs text-muted-foreground mt-0.5">{manager.phone || "No Phone"}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       {manager.form_title ? (
                         <div className="flex flex-col items-start">
                           <span className="text-sm font-medium text-foreground">{manager.form_title}</span>
