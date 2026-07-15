@@ -51,8 +51,21 @@ export async function proxy(request: NextRequest) {
 
   // Next.js API Routes protection
   if (pathname.startsWith('/api/') && !pathname.startsWith('/api/auth/')) {
-    // Basic protection: if we reach here, they have a valid token
-    // We could add more granular API RBAC here or in the route handlers
+    
+    // Strict API RBAC
+    if (pathname.startsWith('/api/admins') || pathname.startsWith('/api/settings')) {
+      if (role !== 'superadmin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+    
+    if (pathname.startsWith('/api/managers') || pathname.startsWith('/api/forms')) {
+      if (role !== 'admin' && role !== 'superadmin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+    
+    // The /api/leads endpoint has logic for managers, admins, and superadmins
+    if (pathname.startsWith('/api/leads')) {
+      if (role !== 'manager' && role !== 'admin' && role !== 'superadmin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set('x-user-id', payload.id as string);
     requestHeaders.set('x-user-role', payload.role as string);
