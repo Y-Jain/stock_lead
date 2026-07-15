@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { Plus, Trash2, Save, Settings, Layout, Eye, ChevronDown, CheckSquare, AlignLeft, Type, Hash, Mail, FileText, Smartphone } from "lucide-react";
+import { Plus, Trash2, Save, Settings, Layout, Eye, ChevronDown, CheckSquare, AlignLeft, Type, Hash, Mail, FileText, Smartphone, Phone } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -83,6 +83,8 @@ function FormBuilderContent() {
   const getFieldIcon = (type: string) => {
     switch(type) {
       case "text": return <Type className="w-4 h-4 text-muted-foreground" />;
+      case "alphanumeric": return <Type className="w-4 h-4 text-muted-foreground" />;
+      case "tel": return <Phone className="w-4 h-4 text-muted-foreground" />;
       case "email": return <Mail className="w-4 h-4 text-muted-foreground" />;
       case "number": return <Hash className="w-4 h-4 text-muted-foreground" />;
       case "textarea": return <AlignLeft className="w-4 h-4 text-muted-foreground" />;
@@ -244,6 +246,8 @@ function FormBuilderContent() {
                                 className="w-full appearance-none pl-9 pr-10 py-2 bg-surface border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary shadow-sm cursor-pointer"
                               >
                                 <option value="text">Short Text</option>
+                                <option value="alphanumeric">Alphanumeric</option>
+                                <option value="tel">Phone Number</option>
                                 <option value="email">Email</option>
                                 <option value="number">Number</option>
                                 <option value="textarea">Long Text</option>

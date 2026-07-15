@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import db from "@/db";
 import * as argon2 from "argon2";
 import { z } from "zod";
+import { headers } from "next/headers";
 
 const managerSchema = z.object({
   email: z.string().email(),
@@ -11,11 +12,19 @@ const managerSchema = z.object({
   employee_id: z.string().optional(),
   phone: z.string().optional(),
   department: z.string().optional(),
+  admin_id: z.string().uuid().optional(),
 });
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const managers = await db("managers")
+    const headersList = await headers();
+    const userId = headersList.get("x-user-id");
+    const userRole = headersList.get("x-user-role");
+    
+    const url = new URL(request.url);
+    const filterAdminId = url.searchParams.get("admin_id");
+
+    let query = db("managers")
       .select(
         "managers.*",
         "users.email",
@@ -29,10 +38,20 @@ export async function GET() {
            JOIN form_assignments ON forms.id = form_assignments.form_id 
            WHERE form_assignments.manager_id = managers.id 
            LIMIT 1) as form_title
-        `)
+        `),
+        "admin_user.email as admin_email"
       )
       .leftJoin("users", "managers.user_id", "users.id")
+      .leftJoin("users as admin_user", "managers.admin_id", "admin_user.id")
       .orderBy("managers.created_at", "desc");
+
+    if (userRole === "admin") {
+      query = query.where("managers.admin_id", userId);
+    } else if (userRole === "superadmin" && filterAdminId) {
+      query = query.where("managers.admin_id", filterAdminId);
+    }
+
+    const managers = await query;
       
     return NextResponse.json({ data: managers });
   } catch (error) {
@@ -50,7 +69,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: parsedData.error.issues[0].message }, { status: 400 });
     }
 
-    const { email, password, name, address, employee_id, phone, department } = parsedData.data;
+    const headersList = await headers();
+    const userId = headersList.get("x-user-id");
+    const userRole = headersList.get("x-user-role");
+
+    const { email, password, name, address, employee_id, phone, department, admin_id } = parsedData.data;
+
+    let targetAdminId = null;
+    if (userRole === "admin") {
+      targetAdminId = userId;
+    } else if (userRole === "superadmin") {
+      targetAdminId = admin_id || userId;
+    }
 
     const newManager = await db.transaction(async (trx) => {
       // 1. Create User
@@ -69,6 +99,7 @@ export async function POST(request: Request) {
       // 3. Create Manager
       const [manager] = await trx("managers").insert({
         user_id: user.id,
+        admin_id: targetAdminId,
         name,
         address,
         employee_id,

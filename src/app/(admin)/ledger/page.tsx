@@ -5,10 +5,13 @@ import Link from "next/link";
 import { Search, Edit, Trash2, Filter, ChevronDown, Download, Database, Calendar, Phone } from "lucide-react";
 import { motion } from "framer-motion";
 import * as XLSX from "xlsx";
+import { formatDistanceToNow } from "date-fns";
+import { AdminFilter } from "@/components/AdminFilter";
 
 export default function LeadsLedgerPage() {
   const [leads, setLeads] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedAdminId, setSelectedAdminId] = useState("");
   
   // Filters
   const [search, setSearch] = useState("");
@@ -28,7 +31,8 @@ export default function LeadsLedgerPage() {
 
   const fetchLeads = () => {
     setLoading(true);
-    fetch("/api/leads")
+    const url = selectedAdminId ? `/api/leads?admin_id=${selectedAdminId}` : "/api/leads";
+    fetch(url)
       .then((res) => res.json())
       .then((data) => {
         setLeads(data.data || []);
@@ -42,7 +46,7 @@ export default function LeadsLedgerPage() {
 
   useEffect(() => {
     fetchLeads();
-  }, []);
+  }, [selectedAdminId]);
 
   const handleDelete = async (id: string) => {
     if (!confirm("WARNING: You are about to permanently delete this lead. This action cannot be undone. Are you sure?")) {
@@ -164,18 +168,21 @@ export default function LeadsLedgerPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">Leads Ledger</h1>
           <p className="text-sm text-muted-foreground mt-1">Master list of all collected leads across the system.</p>
         </div>
-        <button 
-          onClick={exportToExcel}
-          disabled={filteredLeads.length === 0}
-          className="inline-flex items-center justify-center px-4 py-2 bg-success text-white border border-success/20 rounded-lg text-sm font-medium hover:bg-success/90 transition-colors shadow-sm gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <Download className="w-4 h-4" /> Export Excel
-        </button>
+        <div className="flex items-center gap-3">
+          <AdminFilter selectedAdminId={selectedAdminId} onAdminChange={setSelectedAdminId} />
+          <button 
+            onClick={exportToExcel}
+            disabled={filteredLeads.length === 0}
+            className="inline-flex items-center justify-center px-4 py-2 bg-success text-white border border-success/20 rounded-lg text-sm font-medium hover:bg-success/90 transition-colors shadow-sm gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Download className="w-4 h-4" /> Export Excel
+          </button>
+        </div>
       </div>
 
       <motion.div 

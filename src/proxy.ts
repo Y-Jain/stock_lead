@@ -28,10 +28,16 @@ export async function proxy(request: NextRequest) {
 
   const role = payload.role as string;
 
-  // 4. Role-Based Access Control (RBAC)
-  // Admin only routes
+  // Superadmin only routes
+  if (pathname.startsWith('/admins') || pathname.startsWith('/settings')) {
+    if (role !== 'superadmin') {
+      return NextResponse.redirect(new URL('/managers', request.url));
+    }
+  }
+
+  // Admin and Superadmin routes
   if (pathname.startsWith('/managers') || pathname.startsWith('/forms')) {
-    if (role !== 'admin') {
+    if (role !== 'admin' && role !== 'superadmin') {
       return NextResponse.redirect(new URL('/leads', request.url));
     }
   }

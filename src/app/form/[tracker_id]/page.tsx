@@ -5,12 +5,13 @@ import { useParams } from "next/navigation";
 import { 
   User, Phone, MapPin, Building2, Monitor, DollarSign, 
   AlertCircle, Briefcase, HelpCircle, FileText, TrendingUp, 
-  CheckCircle2, Mail 
+  CheckCircle2, Mail, IndianRupee 
 } from "lucide-react";
 
 export default function PublicFormPage() {
   const { tracker_id } = useParams();
   const [formData, setFormData] = useState<any>(null);
+  const [logoUrl, setLogoUrl] = useState("/logo.png");
   const [fields, setFields] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -25,6 +26,7 @@ export default function PublicFormPage() {
         if (data.error) throw new Error(data.error);
         setFormData(data.data.form);
         setFields(data.data.fields);
+        if (data.data.logo_url) setLogoUrl(data.data.logo_url);
         setLoading(false);
       })
       .catch((err) => {
@@ -68,7 +70,7 @@ export default function PublicFormPage() {
     if (n.includes('provider') || n.includes('demat')) return <Building2 className="w-5 h-5 text-gray-400" />;
     if (n.includes('platform')) return <Monitor className="w-5 h-5 text-gray-400" />;
     if (n.includes('loss')) return <AlertCircle className="w-5 h-5 text-gray-400" />;
-    if (n.includes('capital') || n.includes('amount') || n.includes('fund')) return <DollarSign className="w-5 h-5 text-gray-400" />;
+    if (n.includes('capital') || n.includes('amount') || n.includes('fund')) return <IndianRupee className="w-5 h-5 text-gray-400" />;
     if (n.includes('experience')) return <Briefcase className="w-5 h-5 text-gray-400" />;
     if (n.includes('tip') || n.includes('level') || n.includes('need')) return <HelpCircle className="w-5 h-5 text-gray-400" />;
     if (type === 'email') return <Mail className="w-5 h-5 text-gray-400" />;
@@ -120,7 +122,7 @@ export default function PublicFormPage() {
         
         <div className="text-center mb-14">
           <div className="mx-auto mb-8 flex justify-center">
-            <img src="/logo.png" alt="Bull Mart Securities" className="h-40 w-auto object-contain drop-shadow-sm scale-[1.1]" />
+            <img src={logoUrl} alt="Bull Mart Securities" className="h-40 w-auto object-contain drop-shadow-sm scale-[1.1]" />
           </div>
           <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight mb-4">{formData.title}</h1>
           {formData.description && (
@@ -156,10 +158,29 @@ export default function PublicFormPage() {
                         {getFieldIcon(field.name, field.type)}
                       </div>
                       <input
-                        type={field.type}
+                        type={field.type === 'alphanumeric' ? 'text' : field.type}
                         name={field.name}
                         required={field.is_required}
                         placeholder={field.placeholder || ""}
+                        {...((field.type === 'tel' || field.name.toLowerCase().includes('phone') || field.name.toLowerCase().includes('mobile')) 
+                          ? { 
+                              pattern: "[0-9]{10}", 
+                              title: "Please enter a valid 10-digit phone number",
+                              maxLength: 10,
+                              minLength: 10,
+                              onInput: (e: any) => {
+                                e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                              }
+                            } 
+                          : field.type === 'alphanumeric'
+                          ? {
+                              pattern: "[a-zA-Z0-9 ]+",
+                              title: "Please enter only alphanumeric characters",
+                              onInput: (e: any) => {
+                                e.target.value = e.target.value.replace(/[^a-zA-Z0-9 ]/g, '');
+                              }
+                            }
+                          : {})}
                         className="appearance-none block w-full pl-12 pr-4 py-4 bg-[#f8f9fc] border-2 border-transparent rounded-2xl placeholder-gray-400 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200 sm:text-sm font-medium text-gray-900 shadow-sm hover:bg-[#f1f3f9]"
                       />
                     </>

@@ -4,15 +4,18 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Plus, Edit2, Trash2, Users, Search, MoreHorizontal } from "lucide-react";
 import { motion } from "framer-motion";
+import { AdminFilter } from "@/components/AdminFilter";
 
 export default function ManagersPage() {
   const [managers, setManagers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [selectedAdminId, setSelectedAdminId] = useState("");
 
   const fetchManagers = () => {
     setLoading(true);
-    fetch("/api/managers")
+    const url = selectedAdminId ? `/api/managers?admin_id=${selectedAdminId}` : "/api/managers";
+    fetch(url)
       .then((res) => res.json())
       .then((data) => {
         setManagers(data.data || []);
@@ -26,7 +29,7 @@ export default function ManagersPage() {
 
   useEffect(() => {
     fetchManagers();
-  }, []);
+  }, [selectedAdminId]);
 
   const handleDelete = async (id: string, email: string) => {
     if (!confirm(`WARNING: Deleting manager "${email}" will also permanently delete all Leads assigned to them. Are you sure?`)) {
@@ -56,12 +59,15 @@ export default function ManagersPage() {
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">Managers</h1>
           <p className="text-sm text-muted-foreground mt-1">Manage your sales representatives and their assigned forms.</p>
         </div>
-        <Link 
-          href="/managers/create" 
-          className="inline-flex items-center justify-center px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors shadow-sm gap-2"
-        >
-          <Plus className="w-4 h-4" /> Add Manager
-        </Link>
+        <div className="flex items-center gap-3">
+          <AdminFilter selectedAdminId={selectedAdminId} onAdminChange={setSelectedAdminId} />
+          <Link 
+            href="/managers/create" 
+            className="inline-flex items-center justify-center px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors shadow-sm gap-2"
+          >
+            <Plus className="w-4 h-4" /> Add Manager
+          </Link>
+        </div>
       </div>
 
       <motion.div 
@@ -131,6 +137,11 @@ export default function ManagersPage() {
                         <div>
                           <div className="text-sm font-semibold text-foreground">{manager.name || "Unnamed Manager"}</div>
                           <div className="text-xs text-muted-foreground mt-0.5">{manager.email} • ID: {manager.employee_id}</div>
+                          {manager.admin_email && (
+                            <div className="text-[10px] text-muted-foreground mt-1 px-1.5 py-0.5 bg-muted rounded w-max">
+                              Admin: {manager.admin_email}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </td>

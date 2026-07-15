@@ -6,6 +6,11 @@ export async function GET(request: Request) {
   try {
     const headersList = await headers();
     const managerId = headersList.get("x-manager-id");
+    const userId = headersList.get("x-user-id");
+    const userRole = headersList.get("x-user-role");
+
+    const url = new URL(request.url);
+    const filterAdminId = url.searchParams.get("admin_id");
 
     let query = db("leads")
       .join("forms", "leads.form_id", "=", "forms.id")
@@ -27,6 +32,10 @@ export async function GET(request: Request) {
     // Strictly enforce manager isolation if they are a manager
     if (managerId) {
       query = query.where("leads.manager_id", managerId);
+    } else if (userRole === "admin") {
+      query = query.where("managers.admin_id", userId);
+    } else if (userRole === "superadmin" && filterAdminId) {
+      query = query.where("managers.admin_id", filterAdminId);
     }
 
     const leads = await query;

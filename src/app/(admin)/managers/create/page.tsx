@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, UserPlus, Mail, Lock, Badge, Building, Phone, MapPin, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import { AdminFilter } from "@/components/AdminFilter";
 
 export default function CreateManagerPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [selectedAdminId, setSelectedAdminId] = useState("");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -18,6 +20,10 @@ export default function CreateManagerPage() {
 
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
+    
+    if (selectedAdminId) {
+      data.admin_id = selectedAdminId;
+    }
 
     try {
       const res = await fetch("/api/managers", {
@@ -68,7 +74,10 @@ export default function CreateManagerPage() {
           )}
 
           <div className="space-y-6">
-            <h3 className="text-lg font-medium text-foreground border-b border-border pb-2">Account Details</h3>
+            <div className="flex items-center justify-between border-b border-border pb-2">
+              <h3 className="text-lg font-medium text-foreground">Account Details</h3>
+              <AdminFilter selectedAdminId={selectedAdminId} onAdminChange={setSelectedAdminId} />
+            </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">

@@ -1,25 +1,50 @@
 import { NextResponse } from "next/server";
+import { headers } from "next/headers";
 import db from "@/db";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const totalLeadsRaw = await db("leads").count("id as count").first();
-    const totalManagersRaw = await db("managers").count("id as count").first();
-    const totalFormsRaw = await db("forms").count("id as count").first();
+    const headersList = await headers();
+    const userId = headersList.get("x-user-id");
+    const userRole = headersList.get("x-user-role");
+
+    const url = new URL(request.url);
+    const filterAdminId = url.searchParams.get("admin_id");
+
+    const adminFilter = userRole === "admin" ? userId : (userRole === "superadmin" && filterAdminId ? filterAdminId : null);
+    let leadsQuery = db("leads").count("leads.id as count");
+    let managersQuery = db("managers").count("managers.id as count");
+    let formsQuery = db("forms").count("forms.id as count");
+    let convertedLeadsQuery = db("leads").whereIn("leads.status", ["Converted", "converted"]).count("leads.id as count");
+    let statusBreakdownQuery = db("leads").select("leads.status").count("leads.id as count").groupBy("leads.status");
+
+    if (adminFilter) {
+      leadsQuery = leadsQuery.join("managers", "leads.manager_id", "managers.id").where("managers.admin_id", adminFilter);
+      managersQuery = managersQuery.where("managers.admin_id", adminFilter);
+      // Forms are assigned to managers. We can count forms assigned to the scoped managers
+      formsQuery = formsQuery
+        .join("form_assignments", "forms.id", "form_assignments.form_id")
+        .join("managers", "form_assignments.manager_id", "managers.id")
+        .where("managers.admin_id", adminFilter)
+        .countDistinct("forms.id as count");
+      convertedLeadsQuery = convertedLeadsQuery.join("managers", "leads.manager_id", "managers.id").where("managers.admin_id", adminFilter);
+      statusBreakdownQuery = statusBreakdownQuery.join("managers", "leads.manager_id", "managers.id").where("managers.admin_id", adminFilter);
+    }
+
+    const totalLeadsRaw = await leadsQuery.first();
+    const totalManagersRaw = await managersQuery.first();
+    const totalFormsRaw = await formsQuery.first();
 
     const totalLeads = Number(totalLeadsRaw?.count || 0);
     const totalManagers = Number(totalManagersRaw?.count || 0);
     const totalForms = Number(totalFormsRaw?.count || 0);
 
-    const convertedLeadsRaw = await db("leads").whereIn("status", ["Converted", "converted"]).count("id as count").first();
+    const convertedLeadsRaw = await convertedLeadsQuery.first();
     const convertedLeads = Number(convertedLeadsRaw?.count || 0);
     
     const conversionRate = totalLeads > 0 ? ((convertedLeads / totalLeads) * 100).toFixed(1) : "0.0";
 
-    const statusBreakdown = await db("leads")
-      .select("status")
-      .count("id as count")
-      .groupBy("status");
+    const statusBreakdown = await statusBreakdownQuery;
 
     // Generate dates for last 7 days
     const trendDataMap = new Map();
@@ -39,9 +64,15 @@ export async function GET() {
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6); // To include today and 6 days before
     sevenDaysAgo.setHours(0, 0, 0, 0);
     
-    const recentLeads = await db("leads")
-      .select("status", "created_at")
-      .where("created_at", ">=", sevenDaysAgo.toISOString());
+    let recentLeadsQuery = db("leads")
+      .select("leads.status", "leads.created_at")
+      .where("leads.created_at", ">=", sevenDaysAgo.toISOString());
+      
+    if (adminFilter) {
+      recentLeadsQuery = recentLeadsQuery.join("managers", "leads.manager_id", "managers.id").where("managers.admin_id", adminFilter);
+    }
+    
+    const recentLeads = await recentLeadsQuery;
       
     recentLeads.forEach((lead: any) => {
       const date = new Date(lead.created_at);

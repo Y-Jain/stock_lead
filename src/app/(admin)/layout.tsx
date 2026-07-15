@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Users, LayoutDashboard, FormInput, LogOut, ClipboardList, Menu, X, Bell, Search, ChevronDown } from "lucide-react";
+import { Users, LayoutDashboard, FormInput, LogOut, ClipboardList, Menu, X, Bell, Search, ChevronDown, Settings as SettingsIcon, Shield } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -14,8 +14,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const { user, setUser } = useAuthStore();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [logoUrl, setLogoUrl] = useState("/logo.png");
 
   useEffect(() => {
+    fetch("/api/settings")
+      .then(res => res.json())
+      .then(data => {
+        if (data?.data?.logo_url) setLogoUrl(data.data.logo_url);
+      })
+      .catch(console.error);
+
     if (!user) {
       fetch("/api/auth/me")
         .then(res => res.json())
@@ -40,6 +48,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: "Form Builder", href: "/forms/builder", icon: FormInput },
   ];
 
+  if (user?.role === 'superadmin') {
+    navItems.push({ name: "Admins", href: "/admins", icon: Shield });
+    navItems.push({ name: "Settings", href: "/settings", icon: SettingsIcon });
+  }
+
   return (
     <div className="flex h-screen bg-background overflow-hidden font-sans">
       {/* Mobile Sidebar Overlay */}
@@ -61,7 +74,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       >
         <div className="h-24 flex items-center justify-center px-6 border-b border-border relative">
           <div className="flex items-center justify-center w-full mt-2">
-            <img src="/logo.png" alt="Bull Mart Securities" className="h-20 w-auto object-contain scale-[1.3]" />
+            <img src={logoUrl} alt="Bull Mart Securities" className="h-20 w-auto object-contain scale-[1.3]" />
           </div>
           <button className="lg:hidden absolute right-6 text-secondary-text hover:text-foreground" onClick={() => setIsSidebarOpen(false)}>
             <X className="w-5 h-5" />
@@ -162,7 +175,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   >
                     <div className="px-4 py-3 border-b border-border">
                       <p className="text-sm font-medium text-foreground truncate">{user?.email}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">Administrator</p>
+                      <p className="text-xs text-muted-foreground mt-0.5 capitalize">{user?.role || "Administrator"}</p>
                     </div>
                     <div className="py-1">
                       <button 

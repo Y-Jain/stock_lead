@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Users, Database, FileText, TrendingUp, Activity, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { Users, Database, FileText, TrendingUp, Activity, ArrowUpRight, Filter } from "lucide-react";
 import { motion } from "framer-motion";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
-
+import { AdminFilter } from "@/components/AdminFilter";
 
 const COLORS = ['#2563EB', '#06B6D4', '#22C55E', '#F59E0B', '#EF4444', '#8B5CF6'];
 
@@ -12,9 +12,12 @@ export default function AdminDashboardPage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [selectedAdminId, setSelectedAdminId] = useState("");
 
   useEffect(() => {
-    fetch("/api/analytics/admin")
+    setLoading(true);
+    const url = selectedAdminId ? `/api/analytics/admin?admin_id=${selectedAdminId}` : "/api/analytics/admin";
+    fetch(url)
       .then(res => res.json())
       .then(json => {
         if (json.error) throw new Error(json.error);
@@ -22,7 +25,7 @@ export default function AdminDashboardPage() {
       })
       .catch(err => setError(err.message))
       .finally(() => setLoading(false));
-  }, []);
+  }, [selectedAdminId]);
 
   if (loading) {
     return (
@@ -53,17 +56,13 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Overview</h1>
-          <p className="text-sm text-muted-foreground mt-1">Monitor your business metrics and lead performance.</p>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Dashboard Overview</h1>
+          <p className="text-sm text-muted-foreground mt-1">High-level metrics and performance analytics.</p>
         </div>
         <div className="flex items-center gap-3">
-          <select className="text-sm border-border bg-surface px-4 py-2 rounded-lg focus:ring-2 focus:ring-primary outline-none">
-            <option>Last 7 days</option>
-            <option>Last 30 days</option>
-            <option>This Year</option>
-          </select>
+          <AdminFilter selectedAdminId={selectedAdminId} onAdminChange={setSelectedAdminId} />
           <button className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors shadow-sm">
             Download Report
           </button>

@@ -36,7 +36,7 @@ export default function LoginPage() {
       setUser(json.data);
 
       // Redirect based on role
-      if (json.data.role === "admin") {
+      if (json.data.role === "admin" || json.data.role === "superadmin") {
         router.push("/managers");
       } else {
         router.push("/leads");

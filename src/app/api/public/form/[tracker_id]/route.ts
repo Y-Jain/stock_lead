@@ -25,7 +25,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ trac
     // Fetch the form fields
     const fields = await db("form_fields").where("form_id", form.id).orderBy("display_order", "asc");
 
-    return NextResponse.json({ data: { form, fields, manager_id: manager.id } });
+    // Fetch the logo_url
+    const logoSetting = await db("settings").where("key", "logo_url").first();
+    const logo_url = logoSetting ? logoSetting.value : "/logo.png";
+
+    return NextResponse.json({ data: { form, fields, manager_id: manager.id, logo_url } });
   } catch (error) {
     console.error("Error fetching public form:", error);
     return NextResponse.json({ error: "Failed to fetch form" }, { status: 500 });
